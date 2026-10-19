@@ -1,0 +1,32 @@
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Search, Sparkles, Bike, ShieldCheck, Leaf } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { categories, foods, restaurants, imageUrl } from '../data'
+import FoodCard from '../components/FoodCard'
+import CustomizeModal from '../components/CustomizeModal'
+
+export default function Home() {
+  const [category, setCategory] = useState('all')
+  const [query, setQuery] = useState('')
+  const [customFood, setCustomFood] = useState(null)
+  const filtered = useMemo(() => foods.filter(f => (category === 'all' || f.category === category) && `${f.name} ${f.restaurant} ${f.description}`.toLowerCase().includes(query.toLowerCase())), [category, query])
+  return <div>
+    <section className="hero-section">
+      <div className="hero-copy"><div className="hero-kicker"><Sparkles size={15}/> GOOD FOOD, GREAT MOOD</div><h1>Your next<br/><span>favorite meal</span><br/>is just a tap away.</h1><p>Cravings don’t wait. Discover the best bites around you, freshly made and delivered with care.</p><div className="hero-actions"><Link to="/menu" className="primary-btn">Explore menu <ArrowRight size={18}/></Link><a href="#popular" className="text-link">What’s popular? <span>↘</span></a></div><div className="hero-proof"><div className="avatar-stack"><span>👩🏽</span><span>👨🏻</span><span>👩🏼</span><span>👨🏾</span></div><div><strong>4.9/5 <span className="stars">★★★★★</span></strong><small>Loved by 12k+ foodies</small></div></div></div>
+      <div className="hero-visual"><div className="hero-orbit orbit-one"></div><div className="hero-orbit orbit-two"></div><img className="hero-food" src={imageUrl('photo-1568901346375-23c9450c58cd', 1100)} alt="Juicy gourmet burger"/><div className="floating-note note-top"><span className="note-icon">🔥</span><div><strong>Hot & fresh</strong><small>Made just for you</small></div></div><div className="floating-note note-bottom"><span className="note-icon green-note"><Bike size={21}/></span><div><strong>On the way!</strong><small>Average 25 min delivery</small></div></div><div className="hero-scribble">Yum!</div></div>
+      <div className="hero-decor decor-one">✳</div><div className="hero-decor decor-two">✦</div>
+    </section>
+    <section className="benefits-strip"><div><span className="benefit-icon"><Bike size={21}/></span><span><strong>Fast delivery</strong><small>At your doorstep in minutes</small></span></div><div><span className="benefit-icon"><ShieldCheck size={21}/></span><span><strong>Fresh & safe</strong><small>Quality you can trust</small></span></div><div><span className="benefit-icon"><Leaf size={21}/></span><span><strong>Made with care</strong><small>Good ingredients, always</small></span></div></section>
+    <section className="section-block categories-section"><div className="section-heading"><div><span className="eyebrow">WHAT ARE YOU CRAVING?</span><h2>Find your kind of <span>delicious.</span></h2></div><Link to="/menu" className="subtle-link">View all <ArrowRight size={16}/></Link></div>
+      <div className="category-list">{categories.map(c => <button key={c.id} className={category===c.id?'category-pill selected':'category-pill'} onClick={() => {setCategory(c.id); document.getElementById('popular')?.scrollIntoView({behavior:'smooth',block:'start'})}}><span>{c.emoji}</span>{c.name}</button>)}</div>
+    </section>
+    <section className="section-block popular-section" id="popular"><div className="section-heading"><div><span className="eyebrow">THE CROWD PLEASERS</span><h2>Popular <span>right now.</span></h2><p className="section-subtitle">The dishes everyone’s talking about. One bite and you’ll know why.</p></div><div className="search-box"><Search size={18}/><input aria-label="Search food" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search dishes..."/>{query && <button onClick={()=>setQuery('')}>×</button>}</div></div>
+      <div className="food-grid">{filtered.slice(0,8).map(food=><FoodCard key={food.id} food={food} onCustomize={setCustomFood}/>)}</div>{filtered.length===0 && <div className="empty-state"><span>🥲</span><h3>No bites found</h3><p>Try another dish or category.</p><button className="secondary-btn" onClick={()=>{setQuery('');setCategory('all')}}>Clear filters</button></div>}
+    </section>
+    <section className="promo-banner"><div className="promo-copy"><span className="promo-label">A LITTLE TREAT FOR YOU</span><h2>Good food tastes<br/>even better with <em>20% off.</em></h2><p>Use your first-order code and make tonight extra delicious.</p><div className="coupon-code"><span>CRAVE20</span><span>FIRST ORDER ONLY</span></div><Link to="/menu" className="light-btn">Claim your craving <ArrowRight size={17}/></Link></div><div className="promo-image"><img src={imageUrl('photo-1513104890138-7c749659a591',900)} alt="Fresh pizza"/><span className="discount-sticker">20%<small>OFF</small></span></div></section>
+    <section className="section-block restaurant-section"><div className="section-heading"><div><span className="eyebrow">YOUR NEIGHBORHOOD FAVORITES</span><h2>Good places. <span>Great plates.</span></h2></div><Link to="/menu" className="subtle-link">Explore restaurants <ArrowRight size={16}/></Link></div><div className="restaurant-grid">{restaurants.map((r,i)=><motion.div className="restaurant-card" key={r.id} whileHover={{y:-4}}><div className="restaurant-image"><img src={imageUrl(r.id===2?'photo-1513104890138-7c749659a591':r.id===3?'photo-1569718212165-3a8278d5f624':r.image,700)} alt={r.name}/><span className={`restaurant-tag ${r.color}`}>{r.tag}</span></div><div className="restaurant-info"><h3>{r.name}</h3><p>{r.cuisine}</p><div><span className="food-rating"><span className="stars">★</span> {r.rating}</span><span>·</span><span>{r.time}</span></div><small>{r.fee}</small></div></motion.div>)}</div></section>
+    <section className="bottom-cta"><div><span className="eyebrow">YOUR TABLE IS WAITING</span><h2>Hungry yet?</h2><p>Your next great meal is only a few clicks away.</p></div><Link to="/menu" className="primary-btn">Order something good <ArrowRight size={18}/></Link></section>
+    <CustomizeModal food={customFood} onClose={()=>setCustomFood(null)}/>
+  </div>
+}
